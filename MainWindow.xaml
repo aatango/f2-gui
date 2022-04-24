@@ -5,8 +5,70 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:f2_gui"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="f2 v0.1.0a" Height="450" Width="800">
 
-    </Grid>
+	<StackPanel>
+		<Menu>
+			<MenuItem Header="File">
+				<MenuItem Header="New" IsEnabled="True" Click="NewCanvas"/>
+				<MenuItem Header="Open" IsEnabled="False"/>
+				<MenuItem Header="SaveAs" IsEnabled="True" Click="SaveFile"/>
+				<Separator/>
+				<MenuItem Header="Exit" IsEnabled="True" Click="ExitProgram"/>
+			</MenuItem>
+
+			<MenuItem Header="View">
+				<MenuItem Header="Pan" IsEnabled="False"/>
+				<MenuItem Header="Zoom" IsEnabled="False"/>
+				<Separator/>
+				<MenuItem Header="Fit content" IsEnabled="False"/>
+				<MenuItem Header="Fit selection" IsEnabled="False"/>
+				<Separator/>
+				<MenuItem Header="Node numbering" IsEnabled="False"/>
+				<MenuItem Header="Node coordinates" IsEnabled="False"/>
+				<Separator/>
+				<MenuItem Header="Dimension lines" IsEnabled="False"/>
+				<MenuItem Header="Member orientation " IsEnabled="False"/>
+				<MenuItem Header="Support nodes" IsEnabled="False"/>
+				<Separator/>
+				<MenuItem Header="Loading" IsEnabled="False"/>
+				<MenuItem Header="Load values" IsEnabled="False"/>
+				<Separator/>
+				<MenuItem Header="Internal forces" IsEnabled="False"/>
+				<Separator/>
+				<MenuItem Header="Reactions" IsEnabled="False"/>
+				<MenuItem Header="Reaction values" IsEnabled="False"/>
+			</MenuItem>
+
+			<MenuItem Header="Geometry">
+				<MenuItem Header="Add Point(s)" IsEnabled="False" />
+				<MenuItem Header="Add Line(s)" IsEnabled="True" Click="AddLine"/>
+				<MenuItem Header="Add measurement(s)" IsEnabled="False"/>
+				<Separator/>
+				<MenuItem Header="Delete element(s)" IsEnabled="False"/>
+			</MenuItem>
+
+			<MenuItem Header="Loads">
+				<MenuItem Header="Add nodal load"/>
+			</MenuItem>
+
+			<MenuItem Header="Results"></MenuItem>
+
+			<MenuItem Header="Help">
+				<MenuItem Header="About" IsEnabled="True" Click="AboutPage"/>
+			</MenuItem>
+		</Menu>
+		
+		<Canvas Name="Canvas"	Background="Transparent">
+			<TextBlock Canvas.Right="0" Text="Scale 1:10" Margin="10px"/>
+			<Line 
+				X1="0" Y1="225"
+				X2="8000" Y2="225"
+				Stroke="LightSteelBlue" StrokeThickness="1" StrokeDashArray="1"/>
+			<Line 
+				X1="400" Y1="0"
+				X2="400" Y2="8000"
+				Stroke="LightSteelBlue" StrokeThickness="1" StrokeDashArray="1"/>
+		</Canvas>
+	</StackPanel>
 </Window>

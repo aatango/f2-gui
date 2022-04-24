@@ -1,25 +1,97 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace f2_gui {
-	/// <summary>
-	/// Interaction logic for MainWindow.xaml
-	/// </summary>
-	public partial class MainWindow : Window {
-		public MainWindow() {
-			InitializeComponent();
+namespace f2_gui;
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+	public MainWindow() {
+		InitializeComponent();
+	}
+
+	private void ExitProgram(object sender, RoutedEventArgs e) { Close(); }
+
+	private void AboutPage(object sender, RoutedEventArgs e) {
+		System.Diagnostics.Process.Start(
+			new System.Diagnostics.ProcessStartInfo {
+				FileName = "https://github.com/aatango/f2-gui",
+				UseShellExecute = true
+			}
+		);
+	}
+
+	public List<Point> PointList = new List<Point>();
+	public List<Line> LineList = new List<Line>();
+
+	private void AddLine(object sender, RoutedEventArgs e) {
+		var AddWindow = new AddLineWindow();
+		AddWindow.Show();
+	}
+
+	private void LeftClickOnCanvas(object sender, MouseButtonEventArgs e) {
+
+	}
+
+	private void NewCanvas(object sender, RoutedEventArgs e) {
+		LineList.Clear();
+		PointList.Clear();
+		Canvas.Children.Clear();
+
+		// Re-add axis
+		var AxisX = new Line {
+			X1 = 0,
+			Y1 = 225,
+			X2 = 8000,
+			Y2 = 225,
+
+			Stroke = Brushes.LightSteelBlue,
+			StrokeDashArray = new DoubleCollection { 1 },
+			StrokeThickness = 1
+		};
+		var AxisY = new Line {
+			X1 = 400,
+			Y1 = 0,
+			X2 = 400,
+			Y2 = 8000,
+
+			Stroke = Brushes.LightSteelBlue,
+			StrokeDashArray = new DoubleCollection { 1 },
+			StrokeThickness = 1
+		};
+
+		Canvas.Children.Add(AxisX);
+		Canvas.Children.Add(AxisY);
+	}
+
+
+	private void SaveFile(object sender, RoutedEventArgs e) {
+		var SaveFileDialog = new Microsoft.Win32.SaveFileDialog();
+
+		SaveFileDialog.FileName = "Document1";
+		SaveFileDialog.DefaultExt = ".f2g";
+		SaveFileDialog.Filter = "f2 Geometry (*.f2g) | *.f2g";
+
+		Nullable<bool> SaveFile = SaveFileDialog.ShowDialog();
+
+		if (SaveFile == true) {
+			string FileContent = "";
+			uint i = 1;
+
+			// Save Points
+
+			FileContent += "EL" + ' ' + LineList.Count.ToString() + '\n';
+			foreach (var Line in LineList) {
+				FileContent += i.ToString() + '\t' + Line.X1 + ' ' + Line.Y1 + ' ' + Line.X2 + ' ' + Line.Y2 + '\n';
+				++i;
+			}
+			// save the fle
+			System.IO.File.WriteAllTextAsync(SaveFileDialog.FileName, FileContent);
 		}
 	}
 }
