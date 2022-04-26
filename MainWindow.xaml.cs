@@ -27,7 +27,10 @@ public partial class MainWindow : Window {
 	}
 
 	public List<Point> PointList = new List<Point>();
-	public List<Line> LineList = new List<Line>();
+
+	// In more developed version, Line would be it's own object.
+	// Not using Drawing.Line because that uses starting and end coordinates only, not start and end points.
+	public List<Point[]> LineList = new List<Point[]>();
 
 	private void AddLine(object sender, RoutedEventArgs e) {
 		var AddWindow = new AddLineWindow();
@@ -80,15 +83,21 @@ public partial class MainWindow : Window {
 		Nullable<bool> SaveFile = SaveFileDialog.ShowDialog();
 
 		if (SaveFile == true) {
-			string FileContent = "";
-			uint i = 1;
+			string FileContent = "PT" + ' ' + PointList.Count.ToString() + '\n';
+			uint PointNo = 1;
+			uint LineNo = 1;
 
 			// Save Points
+			foreach (var Point in PointList) {
+				FileContent += PointNo.ToString() + '\t' + Point.X + ' ' + Point.Y + '\n';
+				++PointNo;
+				}
 
 			FileContent += "EL" + ' ' + LineList.Count.ToString() + '\n';
+
 			foreach (var Line in LineList) {
-				FileContent += i.ToString() + '\t' + Line.X1 + ' ' + Line.Y1 + ' ' + Line.X2 + ' ' + Line.Y2 + '\n';
-				++i;
+				FileContent += LineNo.ToString() + '\t' + (PointList.IndexOf(Line[0]) + 1) + ' ' + (PointList.IndexOf(Line[1]) + 1) + '\n';
+				++LineNo;
 			}
 			// save the fle
 			System.IO.File.WriteAllTextAsync(SaveFileDialog.FileName, FileContent);

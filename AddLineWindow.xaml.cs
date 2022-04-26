@@ -13,26 +13,24 @@ public partial class AddLineWindow : Window {
 	public AddLineWindow() => InitializeComponent();
 	private void ExitWindow(object sender, RoutedEventArgs e) => this.Close();
 
+	// Does not sanitise input before attempting to add line. Does not verify if line is a duplicate, or uses existing points. etc.
 	private void NewLineButton(object sender, RoutedEventArgs e) {
-		// Does not sanitise input before attempting to add line. Does not verify if line is a duplicate, or uses existing points. etc.
-		var NewLine = new Line {
-			X1 = Convert.ToDouble(XCoordStart.Text),
-			Y1 = Convert.ToDouble(YCoordStart.Text),
-			X2 = Convert.ToDouble(XCoordEnd.Text),
-			Y2 = Convert.ToDouble(YCoordEnd.Text),
+		var StartPoint = new Point(Convert.ToDouble(XCoordStart.Text), Convert.ToDouble(YCoordStart.Text));
+		var EndPoint = new Point(Convert.ToDouble(XCoordEnd.Text), Convert.ToDouble(YCoordEnd.Text));
 
-			Stroke = Brushes.DarkOliveGreen,
-			StrokeThickness = 2
-		};
+		if (!MainWindow.PointList.Contains(StartPoint)) { MainWindow.PointList.Add(StartPoint); }
+		if (!MainWindow.PointList.Contains(EndPoint)) { MainWindow.PointList.Add(EndPoint); }
+
+		Point[] NewLine = { StartPoint, EndPoint };
 		MainWindow.LineList.Add(NewLine);
 
 		// Transforming from real space to screen space. In production should be done through an actual transformation that is dependent on the windows size, position, and scale.
 		// Since this is just a mock-up, it's hard-coded.
 		var DrawLine = new Line {
-			X1 = 800 / 2 + 10 * Convert.ToDouble(XCoordStart.Text),
-			Y1 = 450 / 2 - 10 * Convert.ToDouble(YCoordStart.Text),
-			X2 = 800 / 2 + 10 * Convert.ToDouble(XCoordEnd.Text),
-			Y2 = 450 / 2 - 10 * Convert.ToDouble(YCoordEnd.Text),
+			X1 = 800 / 2 + 10 * StartPoint.X,
+			Y1 = 450 / 2 - 10 * StartPoint.Y,
+			X2 = 800 / 2 + 10 * EndPoint.X,
+			Y2 = 450 / 2 - 10 * EndPoint.Y,
 
 			Stroke = Brushes.DarkOliveGreen,
 			StrokeThickness = 2
