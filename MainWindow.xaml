@@ -11,7 +11,7 @@
 		<Menu>
 			<MenuItem Header="File">
 				<MenuItem Header="New" IsEnabled="True" Click="NewCanvas"/>
-				<MenuItem Header="Open" IsEnabled="False"/>
+				<MenuItem Header="Open" IsEnabled="True" Click="OpenFile"/>
 				<MenuItem Header="SaveAs" IsEnabled="True" Click="SaveFile"/>
 				<Separator/>
 				<MenuItem Header="Exit" IsEnabled="True" Click="ExitProgram"/>
@@ -42,7 +42,7 @@
 
 			<MenuItem Header="Geometry">
 				<MenuItem Header="Add Point(s)" IsEnabled="False" />
-				<MenuItem Header="Add Line(s)" IsEnabled="True" Click="AddLine"/>
+				<MenuItem Header="Add Line(s)" IsEnabled="True" Click="Click_AddLine"/>
 				<MenuItem Header="Add measurement(s)" IsEnabled="False"/>
 				<Separator/>
 				<MenuItem Header="Delete element(s)" IsEnabled="False"/>
@@ -63,11 +63,11 @@
 			<TextBlock Canvas.Right="0" Text="Scale 1:10" Margin="10px"/>
 			<Line 
 				X1="0" Y1="225"
-				X2="8000" Y2="225"
+				X2="1000" Y2="225"
 				Stroke="LightSteelBlue" StrokeThickness="1" StrokeDashArray="1"/>
 			<Line 
 				X1="400" Y1="0"
-				X2="400" Y2="8000"
+				X2="400" Y2="1000"
 				Stroke="LightSteelBlue" StrokeThickness="1" StrokeDashArray="1"/>
 		</Canvas>
 	</StackPanel>

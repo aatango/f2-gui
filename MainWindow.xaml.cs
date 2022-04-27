@@ -11,111 +11,13 @@ namespace f2_gui;
 /// Interaction logic for MainWindow.xaml
 /// </summary>
 public partial class MainWindow : Window {
-	public MainWindow() {
-		InitializeComponent();
-	}
+	public MainWindow() { InitializeComponent(); }
 
-	private void ExitProgram(object sender, RoutedEventArgs e) { Close(); }
 
-	private void AboutPage(object sender, RoutedEventArgs e) {
-		System.Diagnostics.Process.Start(
-			new System.Diagnostics.ProcessStartInfo {
-				FileName = "https://github.com/aatango/f2-gui",
-				UseShellExecute = true
-			}
-		);
-	}
-
+	// In more developed version, both of the following data structures would be their own objects.
 	public List<Point> PointList = new List<Point>();
-
-	// In more developed version, Line would be it's own object.
-	// Not using Drawing.Line because that uses starting and end coordinates only, not start and end points.
-	public List<Point[]> LineList = new List<Point[]>();
-
-	private void AddLine(object sender, RoutedEventArgs e) {
-		var AddWindow = new AddLineWindow();
-		AddWindow.Show();
-	}
-
-	private void LeftClickOnCanvas(object sender, MouseButtonEventArgs e) {
-
-	}
-
-	private void NewCanvas(object sender, RoutedEventArgs e) {
-		LineList.Clear();
-		PointList.Clear();
-		Canvas.Children.Clear();
-
-		// Re-add axis
-		var AxisX = new Line {
-			X1 = 0,
-			Y1 = 225,
-			X2 = 8000,
-			Y2 = 225,
-
-			Stroke = Brushes.LightSteelBlue,
-			StrokeDashArray = new DoubleCollection { 1 },
-			StrokeThickness = 1
-		};
-		var AxisY = new Line {
-			X1 = 400,
-			Y1 = 0,
-			X2 = 400,
-			Y2 = 8000,
-
-			Stroke = Brushes.LightSteelBlue,
-			StrokeDashArray = new DoubleCollection { 1 },
-			StrokeThickness = 1
-		};
-
-		Canvas.Children.Add(AxisX);
-		Canvas.Children.Add(AxisY);
-	}
-
-
-	private void SaveFile(object sender, RoutedEventArgs e) {
-		var SaveFileDialog = new Microsoft.Win32.SaveFileDialog();
-
-		SaveFileDialog.FileName = "Document1";
-		SaveFileDialog.DefaultExt = ".f2g";
-		SaveFileDialog.Filter = "f2 Geometry (*.f2g) | *.f2g";
-
-		Nullable<bool> SaveFile = SaveFileDialog.ShowDialog();
-
-		if (SaveFile == true) {
-			string FileContent = "PT" + ' ' + PointList.Count.ToString() + '\n';
-			uint PointNo = 1;
-			uint LineNo = 1;
-
-			// Save Points
-			foreach (var Point in PointList) {
-				FileContent += PointNo.ToString() + '\t' + Point.X + ' ' + Point.Y + '\n';
-				++PointNo;
-				}
-
-			FileContent += "EL" + ' ' + LineList.Count.ToString() + '\n';
-
-			foreach (var Line in LineList) {
-				FileContent += LineNo.ToString() + '\t' + (PointList.IndexOf(Line[0]) + 1) + ' ' + (PointList.IndexOf(Line[1]) + 1) + '\n';
-				++LineNo;
-			}
-			// save the fle
-			System.IO.File.WriteAllTextAsync(SaveFileDialog.FileName, FileContent);
-		}
-	}
-
-	private void OpenFile(object sender, RoutedEventArgs e) {
-		var OpenFileDialog = new Microsoft.Win32.OpenFileDialog();
-
-		OpenFileDialog.FileName = "Document1";
-		OpenFileDialog.DefaultExt = ".f2g";
-		OpenFileDialog.Filter = "f2 Geometry (*.f2g) | *.f2g";
-
-		Nullable<bool> OpenFile = OpenFileDialog.ShowDialog();
-
-
-	}
-
+	public List<Point[]> LineList = new List<Point[]>();    // Not using Drawing.Line because that uses starting and end coordinates only, not start and end points.
+	
 	// Does not verify if line is a duplicate, or uses existing points.
 	public void AddLine(Point _StartPoint, Point _EndPoint) {
 		if (!PointList.Contains(_StartPoint)) { PointList.Add(_StartPoint); }
@@ -138,4 +40,136 @@ public partial class MainWindow : Window {
 
 		Canvas.Children.Add(DrawLine);
 	}
+
+	// Reset canvas
+	private void ResetCanvas() {
+		LineList.Clear();
+		PointList.Clear();
+		Canvas.Children.Clear();
+
+		// Re-add axis
+		var AxisX = new Line {
+			X1 = 0,
+			Y1 = 225,
+			X2 = 1000,
+			Y2 = 225,
+
+			Stroke = Brushes.LightSteelBlue,
+			StrokeDashArray = new DoubleCollection { 1 },
+			StrokeThickness = 1
+		};
+		var AxisY = new Line {
+			X1 = 400,
+			Y1 = 0,
+			X2 = 400,
+			Y2 = 1000,
+
+			Stroke = Brushes.LightSteelBlue,
+			StrokeDashArray = new DoubleCollection { 1 },
+			StrokeThickness = 1
+		};
+
+		Canvas.Children.Add(AxisX);
+		Canvas.Children.Add(AxisY);
+	}
+
+
+	//Menu File
+	private void NewCanvas(object sender, RoutedEventArgs e) {
+		ResetCanvas();
+	}
+	private void OpenFile(object sender, RoutedEventArgs e) {
+		ResetCanvas();
+		var OpenFileDialog = new Microsoft.Win32.OpenFileDialog();
+
+		OpenFileDialog.FileName = "Document1";
+		OpenFileDialog.DefaultExt = ".f2g";
+		OpenFileDialog.Filter = "f2 Geometry (*.f2g) | *.f2g";
+
+		OpenFileDialog.ShowDialog();
+
+		var FileStream = OpenFileDialog.OpenFile();
+
+		
+		using (System.IO.StreamReader reader = new(FileStream)) {
+			while (reader.Peek() >= 0) {
+				string FileContent = reader.ReadLine();
+
+				string[] Line = FileContent.Split(' ');
+				// Should become a function when this leaves proof of concept.
+				if (Line[0].ToUpper() == "PT") {
+					byte PointCount = Convert.ToByte(Line[1]);
+
+					for (byte i = 0; i < PointCount; ++i) {
+						string? PointLine = reader.ReadLine();
+
+						if (PointLine == null) { return; }  // should be an exception
+
+						string[] PointCoordinates = PointLine.Split(' ');
+						Point Point = new(Convert.ToDouble(PointCoordinates[0]), Convert.ToDouble(PointCoordinates[1]));
+						PointList.Add(Point);
+					}
+				} else if (Line[0].ToUpper() == "EL") {
+					byte LineCount = Convert.ToByte(Line[1]);
+
+					for (byte i = 0; i < LineCount; ++i) {
+						string? LineLine = reader.ReadLine();
+
+						if (LineLine == null) { return; }
+
+						string[] LinePoints = LineLine.Split(' ');
+						byte StartPoint = Convert.ToByte(LinePoints[0]);
+						byte EndPoint = Convert.ToByte(LinePoints[1]);
+						AddLine(PointList[StartPoint - 1], PointList[EndPoint - 1]);
+					}
+				}
+			}
+		}
+	}
+	private void SaveFile(object sender, RoutedEventArgs e) {
+		var SaveFileDialog = new Microsoft.Win32.SaveFileDialog();
+
+		SaveFileDialog.FileName = "Document1";
+		SaveFileDialog.DefaultExt = ".f2g";
+		SaveFileDialog.Filter = "f2 Geometry (*.f2g) | *.f2g";
+
+		Nullable<bool> SaveFile = SaveFileDialog.ShowDialog();
+
+		if (SaveFile == true) {
+			string FileContent = "PT" + ' ' + PointList.Count.ToString() + '\n';
+
+			// Save Points
+			foreach (var Point in PointList) {
+				FileContent += Point.X.ToString() + ' ' + Point.Y.ToString() + '\n';
+			}
+
+			FileContent += "EL" + ' ' + LineList.Count.ToString() + '\n';
+
+			foreach (var Line in LineList) {
+				FileContent += (PointList.IndexOf(Line[0]) + 1).ToString() + ' ' + (PointList.IndexOf(Line[1]) + 1).ToString() + '\n';
+			}
+			// save the fle
+			System.IO.File.WriteAllTextAsync(SaveFileDialog.FileName, FileContent);
+		}
+	}
+	private void ExitProgram(object sender, RoutedEventArgs e) { Close(); }
+
+	// Menu Geometry
+	private void Click_AddLine(object sender, RoutedEventArgs e) {
+		var AddWindow = new AddLineWindow();
+		AddWindow.Show();
+	}
+
+	// Menu Help
+	private void AboutPage(object sender, RoutedEventArgs e) {
+		System.Diagnostics.Process.Start(
+			new System.Diagnostics.ProcessStartInfo {
+				FileName = "https://github.com/aatango/f2-gui",
+				UseShellExecute = true
+			}
+		);
+	}
 }
+
+
+
