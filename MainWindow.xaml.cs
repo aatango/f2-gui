@@ -103,4 +103,39 @@ public partial class MainWindow : Window {
 			System.IO.File.WriteAllTextAsync(SaveFileDialog.FileName, FileContent);
 		}
 	}
+
+	private void OpenFile(object sender, RoutedEventArgs e) {
+		var OpenFileDialog = new Microsoft.Win32.OpenFileDialog();
+
+		OpenFileDialog.FileName = "Document1";
+		OpenFileDialog.DefaultExt = ".f2g";
+		OpenFileDialog.Filter = "f2 Geometry (*.f2g) | *.f2g";
+
+		Nullable<bool> OpenFile = OpenFileDialog.ShowDialog();
+
+
+	}
+
+	// Does not verify if line is a duplicate, or uses existing points.
+	public void AddLine(Point _StartPoint, Point _EndPoint) {
+		if (!PointList.Contains(_StartPoint)) { PointList.Add(_StartPoint); }
+		if (!PointList.Contains(_EndPoint)) { PointList.Add(_EndPoint); }
+
+		Point[] NewLine = { _StartPoint, _EndPoint };
+		LineList.Add(NewLine);
+
+		// Transforming from real space to screen space. In production should be done through an actual transformation that is dependent on the windows size, position, and scale.
+		// Since this is just a mock-up, it's hard-coded.
+		var DrawLine = new Line {
+			X1 = 800 / 2 + 10 * _StartPoint.X,
+			Y1 = 450 / 2 - 10 * _StartPoint.Y,
+			X2 = 800 / 2 + 10 * _EndPoint.X,
+			Y2 = 450 / 2 - 10 * _EndPoint.Y,
+
+			Stroke = Brushes.DarkOliveGreen,
+			StrokeThickness = 2
+		};
+
+		Canvas.Children.Add(DrawLine);
+	}
 }
