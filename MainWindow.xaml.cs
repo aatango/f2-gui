@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace f2_gui;
 /// <summary>
-/// Interaction logic for MainWindow.xaml
+/// Proof of concept for f2 GUI.
+/// 
+/// Lessons can be taken from this endeavour, and this might work as a test bed for further prototyping, but
+/// THIS IS NOT INTENDED FOR PRODUCTION, NOR FOR REFACTORING INTO A PRODUCTION READY PRODUCT.
 /// </summary>
 public partial class MainWindow : Window {
 	public MainWindow() { InitializeComponent(); }
@@ -16,30 +18,7 @@ public partial class MainWindow : Window {
 
 	// In more developed version, both of the following data structures would be their own objects.
 	public List<Point> PointList = new List<Point>();
-	public List<Point[]> LineList = new List<Point[]>();    // Not using Drawing.Line because that uses starting and end coordinates only, not start and end points.
-	
-	// Does not verify if line is a duplicate, or uses existing points.
-	public void AddLine(Point _StartPoint, Point _EndPoint) {
-		if (!PointList.Contains(_StartPoint)) { PointList.Add(_StartPoint); }
-		if (!PointList.Contains(_EndPoint)) { PointList.Add(_EndPoint); }
-
-		Point[] NewLine = { _StartPoint, _EndPoint };
-		LineList.Add(NewLine);
-
-		// Transforming from real space to screen space. In production should be done through an actual transformation that is dependent on the windows size, position, and scale.
-		// Since this is just a mock-up, it's hard-coded.
-		var DrawLine = new Line {
-			X1 = 800 / 2 + 10 * _StartPoint.X,
-			Y1 = 450 / 2 - 10 * _StartPoint.Y,
-			X2 = 800 / 2 + 10 * _EndPoint.X,
-			Y2 = 450 / 2 - 10 * _EndPoint.Y,
-
-			Stroke = Brushes.DarkOliveGreen,
-			StrokeThickness = 2
-		};
-
-		Canvas.Children.Add(DrawLine);
-	}
+	public List<Point[]> LineList = new List<Point[]>();    // Not using List of Drawing.Line because that uses starting and end coordinates only, not start and end points.
 
 	// Reset canvas
 	private void ResetCanvas() {
@@ -72,14 +51,38 @@ public partial class MainWindow : Window {
 		Canvas.Children.Add(AxisX);
 		Canvas.Children.Add(AxisY);
 	}
+	// Does not verify if line is a duplicate, or uses existing points.
+	public void AddLine(Point _StartPoint, Point _EndPoint) {
+		if (!PointList.Contains(_StartPoint)) { PointList.Add(_StartPoint); }
+		if (!PointList.Contains(_EndPoint)) { PointList.Add(_EndPoint); }
+
+		Point[] NewLine = { _StartPoint, _EndPoint };
+		LineList.Add(NewLine);
+
+		// Transforming from real space to screen space. In production should be done through an actual transformation that is dependent on the windows size, position, and scale.
+		// Since this is just a mock-up, it's hard-coded.
+		var DrawLine = new Line {
+			X1 = 800 / 2 + 10 * _StartPoint.X,
+			Y1 = 450 / 2 - 10 * _StartPoint.Y,
+			X2 = 800 / 2 + 10 * _EndPoint.X,
+			Y2 = 450 / 2 - 10 * _EndPoint.Y,
+
+			Stroke = Brushes.DarkOliveGreen,
+			StrokeThickness = 2
+		};
+
+		Canvas.Children.Add(DrawLine);
+	}
 
 
 	//Menu File
 	private void NewCanvas(object sender, RoutedEventArgs e) {
+		// Should ask for user confirmation before executing command.
 		ResetCanvas();
 	}
 	private void OpenFile(object sender, RoutedEventArgs e) {
 		ResetCanvas();
+
 		var OpenFileDialog = new Microsoft.Win32.OpenFileDialog();
 
 		OpenFileDialog.FileName = "Document1";
@@ -90,22 +93,23 @@ public partial class MainWindow : Window {
 
 		var FileStream = OpenFileDialog.OpenFile();
 
-		
+
 		using (System.IO.StreamReader reader = new(FileStream)) {
 			while (reader.Peek() >= 0) {
-				string FileContent = reader.ReadLine();
 
-				string[] Line = FileContent.Split(' ');
-				// Should become a function when this leaves proof of concept.
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+				string FileContent = reader.ReadLine(); // Code will not be null, as we're testing EOF at the while loop level.
+				string[] Line = FileContent.Split(' '); // See above.
+
+
 				if (Line[0].ToUpper() == "PT") {
 					byte PointCount = Convert.ToByte(Line[1]);
 
 					for (byte i = 0; i < PointCount; ++i) {
-						string? PointLine = reader.ReadLine();
-
-						if (PointLine == null) { return; }  // should be an exception
-
+						string PointLine = reader.ReadLine();
 						string[] PointCoordinates = PointLine.Split(' ');
+
 						Point Point = new(Convert.ToDouble(PointCoordinates[0]), Convert.ToDouble(PointCoordinates[1]));
 						PointList.Add(Point);
 					}
@@ -123,6 +127,8 @@ public partial class MainWindow : Window {
 						AddLine(PointList[StartPoint - 1], PointList[EndPoint - 1]);
 					}
 				}
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 			}
 		}
 	}
