@@ -7,3 +7,14 @@ Other than the not implemented features, the following are some of the current l
 * Axis aren't responsive (if the main window is scaled large enough, the axis just stop);
 
 <!-- TODO: Add screenshot -->
+
+## To-do
+_Possible roadmap for this frontend._
+
+* GUI representation of .f2g model;
+* \+ .f2l loads;
+* result files;
+* create a new model from GUI;
+* edit created/imported geometry; and
+* edit created/imported loads.
+
